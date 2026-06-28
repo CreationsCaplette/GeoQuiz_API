@@ -1,6 +1,9 @@
 using GeoQuiz_API.Data;
 using GeoQuiz_API.Data.GeoQuiz;
 using GeoQuiz_API.Data.RestCountries;
+using System.Text.Json;
+
+const string GeoQuizDataFileName = "GeoQuizData.json";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +23,25 @@ app.UseHttpsRedirection();
 
 app.MapGet("/countries", async (IConfiguration config) =>
 {
-    var apiKey = config.GetValue<string>("RestCountriesApiKey");
+    var data = GetDataFromFile();
+    if (data is not null)
+    {
+        return data.Countries;
+    }
 
+    var apiKey = config.GetValue<string>("RestCountriesApiKey");
+    var countries = await GetCountriesFromAPI(apiKey);
+
+    SaveDataToFile(countries);
+
+    return countries;
+})
+.WithName("CountriesData");
+
+app.Run();
+
+static async Task<List<GeoQuizCountry>> GetCountriesFromAPI(string apiKey)
+{
     var client = new HttpClient();
     client.DefaultRequestHeaders.Add("Authorization", apiKey);
 
@@ -36,8 +56,23 @@ app.MapGet("/countries", async (IConfiguration config) =>
     }
 
     var countries = data.ConvertToGeoQuizCountries();
-    return countries;
-})
-.WithName("CountriesData");
 
-app.Run();
+    return countries;
+}
+
+static GeoQuizData? GetDataFromFile()
+{
+    if (!File.Exists(GeoQuizDataFileName))
+        return null;
+
+    var countriesJson = File.ReadAllText(GeoQuizDataFileName);
+    var countries = JsonSerializer.Deserialize<GeoQuizData>(countriesJson);
+    return countries;
+}
+
+static void SaveDataToFile(List<GeoQuizCountry> countries)
+{
+    var geoQuizData = new GeoQuizData(countries, DateTimeOffset.UtcNow);
+    var dataJson = JsonSerializer.Serialize(geoQuizData);
+    File.WriteAllText(GeoQuizDataFileName, dataJson);
+}
