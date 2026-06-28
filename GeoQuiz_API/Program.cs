@@ -24,10 +24,8 @@ app.UseHttpsRedirection();
 app.MapGet("/countries", async (IConfiguration config) =>
 {
     var data = GetDataFromFile();
-    if (data is not null)
-    {
+    if (data is not null && IsDataStillValid(data))
         return data.Countries;
-    }
 
     var apiKey = config.GetValue<string>("RestCountriesApiKey");
     var countries = await GetCountriesFromAPI(apiKey);
@@ -75,4 +73,12 @@ static void SaveDataToFile(List<GeoQuizCountry> countries)
     var geoQuizData = new GeoQuizData(countries, DateTimeOffset.UtcNow);
     var dataJson = JsonSerializer.Serialize(geoQuizData);
     File.WriteAllText(GeoQuizDataFileName, dataJson);
+}
+
+static bool IsDataStillValid(GeoQuizData data)
+{
+    var dateDiff = DateTime.UtcNow - data.TimeStamp;
+    if (dateDiff > TimeSpan.FromDays(1))
+        return false;
+    return true;
 }
