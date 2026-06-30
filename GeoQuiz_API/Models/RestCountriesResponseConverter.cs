@@ -1,7 +1,7 @@
-﻿using GeoQuiz_API.Data.GeoQuiz;
-using GeoQuiz_API.Data.RestCountries;
+﻿using GeoQuiz_API.Models.GeoQuiz;
+using GeoQuiz_API.Models.RestCountries;
 
-namespace GeoQuiz_API.Data;
+namespace GeoQuiz_API.Models;
 
 public static class RestCountriesResponseConverter
 {

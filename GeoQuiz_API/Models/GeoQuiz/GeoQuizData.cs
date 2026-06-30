@@ -1,4 +1,4 @@
-﻿namespace GeoQuiz_API.Data.GeoQuiz;
+﻿namespace GeoQuiz_API.Models.GeoQuiz;
 
 public record GeoQuizData(
     List<GeoQuizCountry> Countries,
