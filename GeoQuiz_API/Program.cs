@@ -1,6 +1,7 @@
-using GeoQuiz_API.Data;
-using GeoQuiz_API.Data.GeoQuiz;
-using GeoQuiz_API.Data.RestCountries;
+using GeoQuiz_API.Models;
+using GeoQuiz_API.Models.GeoQuiz;
+using GeoQuiz_API.Models.RestCountries;
+using GeoQuiz_API.Startup;
 using System.Text.Json;
 
 const string ConfigApiKey = "RestCountriesApiKey";
@@ -14,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddCorsServices();
 
 var app = builder.Build();
 
@@ -24,6 +26,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.ApplyCorsConfig();
 
 app.MapGet("/countries", async (IConfiguration config) =>
 {
