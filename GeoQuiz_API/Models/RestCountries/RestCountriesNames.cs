@@ -1,4 +1,4 @@
-﻿namespace GeoQuiz_API.Data.RestCountries;
+﻿namespace GeoQuiz_API.Models.RestCountries;
 
 public record RestCountriesNames(
     string common
