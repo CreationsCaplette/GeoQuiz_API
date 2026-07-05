@@ -18,7 +18,8 @@ public static class RestCountriesResponseConverter
             (
                 obj.names.common,
                 obj.capitals[0].name,
-                obj.flag.url_svg
+                obj.flag.url_svg,
+                obj.flag.description
             ));
         }
 

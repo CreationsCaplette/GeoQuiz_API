@@ -28,7 +28,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.ApplyCorsConfig();
 
-app.MapGet("/countries", async (IConfiguration config) =>
+app.MapGet("/countries/all", async (IConfiguration config) =>
 {
     var data = GetDataFromFile();
     if (data is not null && IsDataStillValid(data))
@@ -78,7 +78,7 @@ static async Task<List<GeoQuizCountry>> GetDataFromAPI(string apiKey)
 
 static async Task<RestCountriesResponse?> FetchResponseFromAPI(HttpClient client, int limit, int offset)
 {
-    var uri = $"https://api.restcountries.com/countries/v5?limit={limit}&offset={offset}&response_fields=names.common,capitals.name,flag.url_svg";
+    var uri = $"https://api.restcountries.com/countries/v5?limit={limit}&offset={offset}&response_fields=names.common,capitals.name,flag.url_svg,flag.description";
     var data = await client.GetFromJsonAsync<RestCountriesResponse>(uri);
 
     return data;
