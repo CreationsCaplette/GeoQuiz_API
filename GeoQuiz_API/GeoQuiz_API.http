@@ -1,6 +1,7 @@
 @GeoQuiz_API_HostAddress = http://localhost:5072
 
 GET {{GeoQuiz_API_HostAddress}}/countries/all/
-Accept: application/json
+
+GET {{GeoQuiz_API_HostAddress}}/game/capitals/
 
 ###

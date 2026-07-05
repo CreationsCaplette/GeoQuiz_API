@@ -1,9 +1,9 @@
 ﻿using GeoQuiz_API.Models.GeoQuiz;
 using System.Text.Json;
 
-namespace GeoQuiz_API.Repositories;
+namespace GeoQuiz_API.Data;
 
-public class JsonFileRepository : IJsonFileRepository
+public class JsonFileData : IJsonFileData
 {
     const string GeoQuizDataFileName = "GeoQuizData.json";
 

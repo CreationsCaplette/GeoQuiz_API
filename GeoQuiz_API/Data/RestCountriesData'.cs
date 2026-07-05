@@ -1,8 +1,8 @@
 ﻿using GeoQuiz_API.Models.RestCountries;
 
-namespace GeoQuiz_API.Repositories;
+namespace GeoQuiz_API.Data;
 
-public class RestCountriesRepository : IRestCountriesRepository
+public class RestCountriesData : IRestCountriesData
 {
     const string HeadersAuthorization = "Authorization";
     const int APILimit = 100;
