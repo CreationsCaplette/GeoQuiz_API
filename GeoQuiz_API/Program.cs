@@ -2,10 +2,8 @@ using GeoQuiz_API.Models;
 using GeoQuiz_API.Models.GeoQuiz;
 using GeoQuiz_API.Repositories;
 using GeoQuiz_API.Startup;
-using System.Text.Json;
 
 const string ConfigApiKey = "RestCountriesApiKey";
-const string GeoQuizDataFileName = "GeoQuizData.json";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddCorsServices();
 
+builder.Services.AddTransient<IJsonFileRepository, JsonFileRepository>();
 builder.Services.AddTransient<IRestCountriesRepository, RestCountriesRepository>();
 
 var app = builder.Build();
@@ -27,9 +26,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.ApplyCorsConfig();
 
-app.MapGet("/countries/all", async (IConfiguration config, IRestCountriesRepository restCountriesRepository) =>
+app.MapGet("/countries/all", async (
+    IConfiguration config,
+    IJsonFileRepository jsonFileRepository,
+    IRestCountriesRepository restCountriesRepository) =>
 {
-    var data = GetDataFromFile();
+    var data = await jsonFileRepository.GetDataFromFile();
     if (data is not null && IsDataStillValid(data))
         return data.Countries;
 
@@ -37,30 +39,13 @@ app.MapGet("/countries/all", async (IConfiguration config, IRestCountriesReposit
     var countriesObject = await restCountriesRepository.GetAllRestCountriesObjects(apiKey);
     var countries = countriesObject.ConvertToGeoQuizCountries();
 
-    SaveDataToFile(countries);
+    await jsonFileRepository.SaveDataToFile(countries);
 
     return countries;
 })
 .WithName("CountriesData");
 
 app.Run();
-
-static GeoQuizData? GetDataFromFile()
-{
-    if (!File.Exists(GeoQuizDataFileName))
-        return null;
-
-    var countriesJson = File.ReadAllText(GeoQuizDataFileName);
-    var countries = JsonSerializer.Deserialize<GeoQuizData>(countriesJson);
-    return countries;
-}
-
-static void SaveDataToFile(List<GeoQuizCountry> countries)
-{
-    var geoQuizData = new GeoQuizData(countries, DateTimeOffset.UtcNow);
-    var dataJson = JsonSerializer.Serialize(geoQuizData);
-    File.WriteAllText(GeoQuizDataFileName, dataJson);
-}
 
 static bool IsDataStillValid(GeoQuizData data)
 {
