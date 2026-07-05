@@ -1,14 +1,11 @@
 using GeoQuiz_API.Models;
 using GeoQuiz_API.Models.GeoQuiz;
-using GeoQuiz_API.Models.RestCountries;
+using GeoQuiz_API.Repositories;
 using GeoQuiz_API.Startup;
 using System.Text.Json;
 
 const string ConfigApiKey = "RestCountriesApiKey";
-const string HeadersAuthorization = "Authorization";
 const string GeoQuizDataFileName = "GeoQuizData.json";
-const int APILimit = 100;
-const int APIOffset = 0;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddCorsServices();
+
+builder.Services.AddTransient<IRestCountriesRepository, RestCountriesRepository>();
 
 var app = builder.Build();
 
@@ -28,14 +27,15 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.ApplyCorsConfig();
 
-app.MapGet("/countries/all", async (IConfiguration config) =>
+app.MapGet("/countries/all", async (IConfiguration config, IRestCountriesRepository restCountriesRepository) =>
 {
     var data = GetDataFromFile();
     if (data is not null && IsDataStillValid(data))
         return data.Countries;
 
     var apiKey = config.GetValue<string>(ConfigApiKey);
-    var countries = await GetDataFromAPI(apiKey);
+    var countriesObject = await restCountriesRepository.GetAllRestCountriesObjects(apiKey);
+    var countries = countriesObject.ConvertToGeoQuizCountries();
 
     SaveDataToFile(countries);
 
@@ -44,45 +44,6 @@ app.MapGet("/countries/all", async (IConfiguration config) =>
 .WithName("CountriesData");
 
 app.Run();
-
-static async Task<List<GeoQuizCountry>> GetDataFromAPI(string apiKey)
-{
-    var client = new HttpClient();
-    client.DefaultRequestHeaders.Add(HeadersAuthorization, apiKey);
-
-    var limit = APILimit;
-    var offset = APIOffset;
-
-    var response = await FetchResponseFromAPI(client, limit, offset);
-    if (response is null)
-    {
-        return [];
-    }
-
-    var countries = response.ConvertToGeoQuizCountries();
-
-    while (response.data.meta.more)
-    {
-        offset += response.data.meta.count;
-        response = await FetchResponseFromAPI(client, limit, offset);
-        if (response is null)
-        {
-            return countries;
-        }
-
-        countries.AddRange(response.ConvertToGeoQuizCountries());
-    }
-
-    return countries;
-}
-
-static async Task<RestCountriesResponse?> FetchResponseFromAPI(HttpClient client, int limit, int offset)
-{
-    var uri = $"https://api.restcountries.com/countries/v5?limit={limit}&offset={offset}&response_fields=names.common,capitals.name,flag.url_svg,flag.description";
-    var data = await client.GetFromJsonAsync<RestCountriesResponse>(uri);
-
-    return data;
-}
 
 static GeoQuizData? GetDataFromFile()
 {

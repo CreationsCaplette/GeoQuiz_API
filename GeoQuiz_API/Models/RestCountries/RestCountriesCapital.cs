@@ -1,5 +1,5 @@
 ﻿namespace GeoQuiz_API.Models.RestCountries;
 
-public record RestCountriesCapitals(
+public record RestCountriesCapital(
     string name
 );
