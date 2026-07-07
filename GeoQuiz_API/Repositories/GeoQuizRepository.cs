@@ -1,6 +1,7 @@
 ﻿using GeoQuiz_API.Data;
 using GeoQuiz_API.Models;
 using GeoQuiz_API.Models.GeoQuiz;
+using System.Runtime.InteropServices;
 
 namespace GeoQuiz_API.Repositories;
 
@@ -11,6 +12,8 @@ public class GeoQuizRepository(
     ) : IGeoQuizRepository
 {
     const string ConfigApiKey = "RestCountriesApiKey";
+    const int NumberOfQuestions = 10;
+    const int NumberOfChoices = 4;
 
     public async Task<List<GeoQuizCountry>> GetAllGeoQuizCountries()
     {
@@ -27,34 +30,51 @@ public class GeoQuizRepository(
         return countries;
     }
 
+    static private bool IsDataStillValid(GeoQuizData data) =>
+        DateTime.UtcNow - data.TimeStamp <= TimeSpan.FromDays(1);
+
     public async Task<List<GeoQuizQuestion>> GetCapitalsGame()
     {
         var countries = await GetAllGeoQuizCountries();
-
         var random = new Random();
 
-        var questionIndex = random.Next(countries.Count);
-        var question = countries[questionIndex];
+        var questions = new HashSet<GeoQuizQuestion>(new GeoQuizQuestionComparer());
 
-        var choice1Index = random.Next(countries.Count);
-        var choice1 = countries[choice1Index];
+        while (questions.Count < NumberOfQuestions)
+        {
+            questions.Add(GetGeoQuizQuestion(countries, random));
+        }
 
-        var choice2Index = random.Next(countries.Count);
-        var choice2 = countries[choice2Index];
-
-        var choice3Index = random.Next(countries.Count);
-        var choice3 = countries[choice3Index];
-
-        var geoQuizQuestion = new GeoQuizQuestion(question.CountryName, [question.CapitalName, choice1.CapitalName, choice2.CapitalName, choice3.CapitalName], 0);
-
-        return [geoQuizQuestion];
+        return [.. questions];
     }
 
-    static private bool IsDataStillValid(GeoQuizData data)
+    static private GeoQuizCountry GetRandomCountry(List<GeoQuizCountry> countries, Random random)
     {
-        var dateDiff = DateTime.UtcNow - data.TimeStamp;
-        if (dateDiff > TimeSpan.FromDays(1))
-            return false;
-        return true;
+        var index = random.Next(countries.Count);
+        return countries[index];
+    }
+
+    static private GeoQuizQuestion GetGeoQuizQuestion(List<GeoQuizCountry> countries, Random random)
+    {
+        var question = GetRandomCountry(countries, random);
+        var choices = GetQuestionChoices(question.CapitalName, countries, random);
+        random.Shuffle(CollectionsMarshal.AsSpan(choices));
+
+        return new GeoQuizQuestion(question.CountryName, choices, choices.IndexOf(question.CapitalName));
+    }
+
+    static private List<string> GetQuestionChoices(string answer, List<GeoQuizCountry> countries, Random random)
+    {
+        var choices = new HashSet<string>
+        {
+            answer
+        };
+
+        while (choices.Count < NumberOfChoices)
+        {
+            choices.Add(GetRandomCountry(countries, random).CapitalName);
+        }
+
+        return [.. choices];
     }
 }
