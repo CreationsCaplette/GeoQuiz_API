@@ -2,47 +2,36 @@
 using GeoQuiz_API.Helper;
 using GeoQuiz_API.Models;
 using GeoQuiz_API.Models.GeoQuiz;
+using Microsoft.Extensions.Options;
 using System.Runtime.InteropServices;
 
 namespace GeoQuiz_API.Repositories;
 
 public class GeoQuizRepository : IGeoQuizRepository
 {
-    private const string RestCountriesApiKeyConfig = "RestCountriesApiKey";
-    private const string GameConfigSection = "GameConfig";
-    private const string NumberOfQuestionsConfig = "NumberOfQuestions";
-    private const string NumberOfChoicesConfig = "NumberOfChoices";
-
-    private readonly string ApiKey;
     private readonly int NumberOfQuestions;
     private readonly int NumberOfChoices;
+    private readonly string ApiKey;
 
     private readonly IJsonFileData jsonFileRepository;
     private readonly IRestCountriesData restCountriesRepository;
     private readonly IRandomProvider randomProvider;
 
     public GeoQuizRepository(
-        IConfiguration config,
+        IOptions<GeoQuizGameOptions> options,
         IJsonFileData jsonFileRepository,
         IRestCountriesData restCountriesRepository,
         IRandomProvider randomProvider
     )
     {
+        var geoQuizOptions = options.Value;
+        ApiKey = geoQuizOptions.RestCountriesApiKey;
+        NumberOfQuestions = geoQuizOptions.NumberOfQuestions;
+        NumberOfChoices = geoQuizOptions.NumberOfChoices;
+
         this.jsonFileRepository = jsonFileRepository;
         this.restCountriesRepository = restCountriesRepository;
-
         this.randomProvider = randomProvider;
-
-        ApiKey = config.GetValue<string>(RestCountriesApiKeyConfig) ?? "";
-
-        if (string.IsNullOrEmpty(ApiKey))
-            throw new InvalidOperationException("Rest Countries API key not found");
-
-        NumberOfQuestions = config.GetSection(GameConfigSection).GetValue<int>(NumberOfQuestionsConfig);
-        NumberOfChoices = config.GetSection(GameConfigSection).GetValue<int>(NumberOfChoicesConfig);
-
-        if (NumberOfQuestions <= 0 || NumberOfChoices <= 0)
-            throw new InvalidOperationException("Game configuration values must be greater than 0");
     }
 
     public async Task<List<GeoQuizCountry>> GetAllGeoQuizCountries()

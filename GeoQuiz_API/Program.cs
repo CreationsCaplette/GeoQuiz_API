@@ -1,7 +1,7 @@
 using GeoQuiz_API.Repositories;
 using GeoQuiz_API.Startup;
 
-var app = AppConfig.GetConfiguratedApp(args);
+var app = AppConfig.BuildAndConfigureApp(args);
 
 app.MapGet("/countries/all", async (IGeoQuizRepository geoQuizRepo) =>
 {
