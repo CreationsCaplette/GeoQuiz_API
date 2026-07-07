@@ -15,6 +15,8 @@ public class GeoQuizRepository(
     const int NumberOfQuestions = 10;
     const int NumberOfChoices = 4;
 
+    private readonly Random random = new();
+
     public async Task<List<GeoQuizCountry>> GetAllGeoQuizCountries()
     {
         var data = await jsonFileRepository.GetDataFromFile();
@@ -36,7 +38,6 @@ public class GeoQuizRepository(
     public async Task<List<GeoQuizQuestion>> GetCapitalsGame()
     {
         var countries = await GetAllGeoQuizCountries();
-        var random = new Random();
 
         var questions = new HashSet<GeoQuizQuestion>(new GeoQuizQuestionComparer());
 
