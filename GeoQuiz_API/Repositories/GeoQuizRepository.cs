@@ -6,25 +6,13 @@ using Microsoft.Extensions.Options;
 
 namespace GeoQuiz_API.Repositories;
 
-public class GeoQuizRepository : IGeoQuizRepository
+public class GeoQuizRepository(
+    IOptions<GeoQuizGameOptions> options,
+    IJsonFileData jsonFileRepository,
+    IRestCountriesData restCountriesRepository
+    ) : IGeoQuizRepository
 {
-    private readonly string ApiKey;
-
-    private readonly IJsonFileData jsonFileRepository;
-    private readonly IRestCountriesData restCountriesRepository;
-
-    public GeoQuizRepository(
-        IOptions<GeoQuizGameOptions> options,
-        IJsonFileData jsonFileRepository,
-        IRestCountriesData restCountriesRepository
-    )
-    {
-        var geoQuizOptions = options.Value;
-        ApiKey = geoQuizOptions.RestCountriesApiKey;
-
-        this.jsonFileRepository = jsonFileRepository;
-        this.restCountriesRepository = restCountriesRepository;
-    }
+    private readonly GeoQuizGameOptions GameOptions = options.Value;
 
     public async Task<List<GeoQuizCountry>> GetAllGeoQuizCountries()
     {
@@ -32,7 +20,7 @@ public class GeoQuizRepository : IGeoQuizRepository
         if (data is not null && IsDataStillValid(data))
             return data.Countries;
 
-        var countriesObject = await restCountriesRepository.GetAllRestCountriesObjects(ApiKey);
+        var countriesObject = await restCountriesRepository.GetAllRestCountriesObjects(GameOptions.RestCountriesApiKey);
         var countries = countriesObject.ConvertToGeoQuizCountries();
 
         await jsonFileRepository.SaveDataToFile(countries);
