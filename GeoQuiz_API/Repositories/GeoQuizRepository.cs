@@ -1,4 +1,5 @@
 ﻿using GeoQuiz_API.Data;
+using GeoQuiz_API.Helper;
 using GeoQuiz_API.Models;
 using GeoQuiz_API.Models.GeoQuiz;
 using System.Runtime.InteropServices;
@@ -16,18 +17,21 @@ public class GeoQuizRepository : IGeoQuizRepository
     private readonly int NumberOfQuestions;
     private readonly int NumberOfChoices;
 
-    private static readonly Random random = new();
     private readonly IJsonFileData jsonFileRepository;
     private readonly IRestCountriesData restCountriesRepository;
+    private readonly IRandomProvider randomProvider;
 
     public GeoQuizRepository(
         IConfiguration config,
         IJsonFileData jsonFileRepository,
-        IRestCountriesData restCountriesRepository
+        IRestCountriesData restCountriesRepository,
+        IRandomProvider randomProvider
     )
     {
         this.jsonFileRepository = jsonFileRepository;
         this.restCountriesRepository = restCountriesRepository;
+
+        this.randomProvider = randomProvider;
 
         ApiKey = config.GetValue<string>(RestCountriesApiKeyConfig) ?? "";
 
@@ -39,7 +43,7 @@ public class GeoQuizRepository : IGeoQuizRepository
 
         if (NumberOfQuestions <= 0 || NumberOfChoices <= 0)
             throw new InvalidOperationException("Game configuration values must be greater than 0");
-    }}
+    }
 
     public async Task<List<GeoQuizCountry>> GetAllGeoQuizCountries()
     {
@@ -66,28 +70,28 @@ public class GeoQuizRepository : IGeoQuizRepository
 
         while (questions.Count < NumberOfQuestions)
         {
-            questions.Add(GetGeoQuizQuestion(countries, random));
+            questions.Add(GetGeoQuizQuestion(countries));
         }
 
         return [.. questions];
     }
 
-    private GeoQuizCountry GetRandomCountry(List<GeoQuizCountry> countries, Random random)
+    private GeoQuizCountry GetRandomCountry(List<GeoQuizCountry> countries)
     {
-        var index = random.Next(countries.Count);
+        var index = randomProvider.Next(countries.Count);
         return countries[index];
     }
 
-    private GeoQuizQuestion GetGeoQuizQuestion(List<GeoQuizCountry> countries, Random random)
+    private GeoQuizQuestion GetGeoQuizQuestion(List<GeoQuizCountry> countries)
     {
-        var question = GetRandomCountry(countries, random);
-        var choices = GetQuestionChoices(question.CapitalName, countries, random);
-        random.Shuffle(CollectionsMarshal.AsSpan(choices));
+        var question = GetRandomCountry(countries);
+        var choices = GetQuestionChoices(question.CapitalName, countries);
+        randomProvider.Shuffle(CollectionsMarshal.AsSpan(choices));
 
         return new GeoQuizQuestion(question.CountryName, choices, choices.IndexOf(question.CapitalName));
     }
 
-    private List<string> GetQuestionChoices(string answer, List<GeoQuizCountry> countries, Random random)
+    private List<string> GetQuestionChoices(string answer, List<GeoQuizCountry> countries)
     {
         var choices = new HashSet<string>
         {
@@ -96,7 +100,7 @@ public class GeoQuizRepository : IGeoQuizRepository
 
         while (choices.Count < NumberOfChoices)
         {
-            choices.Add(GetRandomCountry(countries, random).CapitalName);
+            choices.Add(GetRandomCountry(countries).CapitalName);
         }
 
         return [.. choices];

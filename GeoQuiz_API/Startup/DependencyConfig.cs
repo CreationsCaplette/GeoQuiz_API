@@ -1,4 +1,5 @@
 ﻿using GeoQuiz_API.Data;
+using GeoQuiz_API.Helper;
 using GeoQuiz_API.Repositories;
 
 namespace GeoQuiz_API.Startup;
@@ -10,5 +11,6 @@ public static class DependencyConfig
         builder.Services.AddTransient<IJsonFileData, JsonFileData>();
         builder.Services.AddTransient<IRestCountriesData, RestCountriesData>();
         builder.Services.AddTransient<IGeoQuizRepository, GeoQuizRepository>();
+        builder.Services.AddSingleton<IRandomProvider, RandomProvider>();
     }
 }
