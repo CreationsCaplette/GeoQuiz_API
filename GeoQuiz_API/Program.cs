@@ -9,9 +9,9 @@ app.MapGet("/countries/all", async (IGeoQuizRepository geoQuizRepo) =>
 })
 .WithName("CountriesAll");
 
-app.MapGet("/game/capitals", async (IGeoQuizRepository geoQuizRepo) =>
+app.MapGet("/game/capitals", async (IGameCapitalsRepository gameCapitalsRepo) =>
 {
-    return await geoQuizRepo.GetCapitalsGame();
+    return await gameCapitalsRepo.GetCapitalsGame();
 })
 .WithName("GameCapitals");
 

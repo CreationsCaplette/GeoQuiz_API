@@ -24,6 +24,7 @@ public static class AppConfig
             builder.Configuration.GetSection(GeoQuizGameOptions.SectionName)
         );
         builder.Services.AddScoped<IGeoQuizRepository, GeoQuizRepository>();
+        builder.Services.AddScoped<IGameCapitalsRepository, GameCapitalsRepository>();
 
         var app = builder.Build();
 
