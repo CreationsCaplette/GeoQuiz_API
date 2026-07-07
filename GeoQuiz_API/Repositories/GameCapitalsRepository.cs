@@ -16,28 +16,48 @@ public class GameCapitalsRepository(
     public async Task<List<GeoQuizQuestion>> GetCapitalsGame()
     {
         var countries = await geoQuizRepository.GetAllGeoQuizCountries();
-        var questions = new HashSet<GeoQuizQuestion>(new GeoQuizQuestionComparer());
+        var questions = new List<GeoQuizQuestion>();
 
-        while (questions.Count < GameOptions.NumberOfQuestions)
+        var shuffledCountries = countries.ToList();
+        randomProvider.Shuffle(CollectionsMarshal.AsSpan(shuffledCountries));
+
+        for (int i = 0; i < GameOptions.NumberOfQuestions; i++)
         {
-            var correctCountry = countries[randomProvider.Next(countries.Count)];
-            var choices = new HashSet<string> { correctCountry.CapitalName };
-
-            while (choices.Count < GameOptions.NumberOfChoices)
-            {
-                choices.Add(countries[randomProvider.Next(countries.Count)].CapitalName);
-            }
-
-            var choicesList = choices.ToList();
-            randomProvider.Shuffle(CollectionsMarshal.AsSpan(choicesList));
+            var correctCountry = shuffledCountries[i % shuffledCountries.Count];
+            var choices = GenerateChoices(correctCountry, countries);
 
             questions.Add(new GeoQuizQuestion(
                 correctCountry.CountryName,
-                choicesList,
-                choicesList.IndexOf(correctCountry.CapitalName)
+                choices,
+                choices.IndexOf(correctCountry.CapitalName)
             ));
         }
 
-        return [.. questions];
+        return questions;
+    }
+
+    private List<string> GenerateChoices(dynamic correctCountry, List<GeoQuizCountry> allCountries)
+    {
+        var choices = new List<string> { correctCountry.CapitalName };
+
+        while (choices.Count < GameOptions.NumberOfChoices)
+        {
+            var randomCapital = allCountries[randomProvider.Next(allCountries.Count)].CapitalName;
+            choices.Add(randomCapital);
+        }
+
+        var uniqueChoices = choices.Distinct().ToList();
+
+        while (uniqueChoices.Count < GameOptions.NumberOfChoices)
+        {
+            var randomCapital = allCountries[randomProvider.Next(allCountries.Count)].CapitalName;
+            if (!uniqueChoices.Contains(randomCapital))
+            {
+                uniqueChoices.Add(randomCapital);
+            }
+        }
+
+        randomProvider.Shuffle(CollectionsMarshal.AsSpan(uniqueChoices));
+        return uniqueChoices;
     }
 }
