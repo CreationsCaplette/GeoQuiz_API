@@ -36,7 +36,7 @@ public class GameCapitalsRepository(
         return questions;
     }
 
-    private List<string> GenerateChoices(dynamic correctCountry, List<GeoQuizCountry> allCountries)
+    private List<string> GenerateChoices(GeoQuizCountry correctCountry, List<GeoQuizCountry> allCountries)
     {
         var choices = new List<string> { correctCountry.CapitalName };
 

@@ -6,13 +6,19 @@ namespace GeoQuiz_API.Data;
 public class JsonFileData : IJsonFileData
 {
     const string GeoQuizDataFileName = "GeoQuizData.json";
+    private readonly string GeoQuizDataFilePath;
+
+    public JsonFileData()
+    {
+        GeoQuizDataFilePath = Path.Combine(AppContext.BaseDirectory, GeoQuizDataFileName);
+    }
 
     public async Task<GeoQuizData?> GetDataFromFile()
     {
-        if (!File.Exists(GeoQuizDataFileName))
+        if (!File.Exists(GeoQuizDataFilePath))
             return null;
 
-        var countriesJson = await File.ReadAllTextAsync(GeoQuizDataFileName);
+        var countriesJson = await File.ReadAllTextAsync(GeoQuizDataFilePath);
         var countries = JsonSerializer.Deserialize<GeoQuizData>(countriesJson);
         return countries;
     }
@@ -21,6 +27,6 @@ public class JsonFileData : IJsonFileData
     {
         var geoQuizData = new GeoQuizData(countries, DateTimeOffset.UtcNow);
         var dataJson = JsonSerializer.Serialize(geoQuizData);
-        await File.WriteAllTextAsync(GeoQuizDataFileName, dataJson);
+        await File.WriteAllTextAsync(GeoQuizDataFilePath, dataJson);
     }
 }
