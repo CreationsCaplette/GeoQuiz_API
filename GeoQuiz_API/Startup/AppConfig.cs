@@ -1,6 +1,7 @@
 ﻿using GeoQuiz_API.Data;
 using GeoQuiz_API.Helper;
 using GeoQuiz_API.Repositories;
+using Polly;
 
 namespace GeoQuiz_API.Startup;
 
@@ -15,6 +16,17 @@ public static class AppConfig
         builder.Services.AddCorsServices();
 
         builder.Configuration.AddUserSecrets<Program>();
+
+        // Register HttpClientFactory
+        builder.Services.AddHttpClient("RestCountriesClient")
+            .ConfigureHttpClient(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(30);
+            })
+            .AddTransientHttpErrorPolicy(p =>
+                p.WaitAndRetryAsync(retryCount: 3,
+                    sleepDurationProvider: attempt =>
+                        TimeSpan.FromSeconds(Math.Pow(2, attempt))));
 
         // Register dependencies
         builder.Services.AddTransient<IJsonFileData, JsonFileData>();

@@ -2,15 +2,16 @@
 
 namespace GeoQuiz_API.Data;
 
-public class RestCountriesData : IRestCountriesData
+public class RestCountriesData(IHttpClientFactory httpClientFactory) : IRestCountriesData
 {
+    private const string ClientName = "RestCountriesClient";
     const string HeadersAuthorization = "Authorization";
     const int APILimit = 100;
     const int APIOffset = 0;
 
     public async Task<List<RestCountriesObject>> GetAllRestCountriesObjects(string apiKey)
     {
-        var client = new HttpClient();
+        var client = httpClientFactory.CreateClient(ClientName);
         client.DefaultRequestHeaders.Add(HeadersAuthorization, apiKey);
 
         var limit = APILimit;
@@ -42,8 +43,16 @@ public class RestCountriesData : IRestCountriesData
     private static async Task<RestCountriesResponse?> FetchResponseFromAPI(HttpClient client, int limit, int offset)
     {
         var uri = $"https://api.restcountries.com/countries/v5?limit={limit}&offset={offset}&response_fields=names.common,capitals.name,flag.url_svg,flag.description";
-        var data = await client.GetFromJsonAsync<RestCountriesResponse>(uri);
 
-        return data;
+        try
+        {
+            var data = await client.GetFromJsonAsync<RestCountriesResponse>(uri);
+            return data;
+        }
+        catch (HttpRequestException ex)
+        {
+            // Log exception here when you add logging
+            return null;
+        }
     }
 }
