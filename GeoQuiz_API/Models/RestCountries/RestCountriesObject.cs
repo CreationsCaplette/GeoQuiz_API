@@ -1,8 +1,8 @@
 ﻿namespace GeoQuiz_API.Models.RestCountries;
 
-public record RestCountriesObjects(
+public record RestCountriesObject(
     RestCountriesNames names,
-    List<RestCountriesCapitals> capitals,
+    List<RestCountriesCapital> capitals,
     RestCountriesFlag flag,
     RestCountriesCountryMeta _meta
 );

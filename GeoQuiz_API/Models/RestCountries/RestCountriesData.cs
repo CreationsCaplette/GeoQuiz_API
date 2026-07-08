@@ -1,6 +1,6 @@
 ﻿namespace GeoQuiz_API.Models.RestCountries;
 
 public record RestCountriesData(
-    List<RestCountriesObjects> objects,
+    List<RestCountriesObject> objects,
     RestCountriesMeta meta
 );

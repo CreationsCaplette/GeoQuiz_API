@@ -3,6 +3,5 @@
 public record GeoQuizCountry(
     string CountryName,
     string CapitalName,
-    string FlagUrl,
-    string FlagDescription
+    string FlagUrl
 );
