@@ -1,5 +1,6 @@
 ﻿using GeoQuiz_API.Data;
 using GeoQuiz_API.Helper;
+using GeoQuiz_API.Middleware;
 using GeoQuiz_API.Repositories;
 using Polly;
 
@@ -11,11 +12,17 @@ public static class AppConfig
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        // Register Configuration
+        builder.Configuration.AddUserSecrets<Program>();
+
         // Register services
         builder.Services.AddOpenApi();
         builder.Services.AddCorsServices();
-
-        builder.Configuration.AddUserSecrets<Program>();
+        builder.Services.AddLogging(config =>
+        {
+            config.AddConsole();
+            config.AddDebug();
+        });
 
         // Register HttpClientFactory
         builder.Services.AddHttpClient("RestCountriesClient")
@@ -48,6 +55,7 @@ public static class AppConfig
 
         app.UseHttpsRedirection();
         app.ApplyCorsConfig();
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         return app;
     }

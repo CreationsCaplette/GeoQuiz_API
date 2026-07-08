@@ -1,5 +1,4 @@
 ﻿using GeoQuiz_API.Data;
-using GeoQuiz_API.Helper;
 using GeoQuiz_API.Models;
 using GeoQuiz_API.Models.GeoQuiz;
 using Microsoft.Extensions.Options;

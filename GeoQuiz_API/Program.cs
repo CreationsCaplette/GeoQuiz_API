@@ -17,7 +17,7 @@ app.MapGet("/game/capitals", async (IGameCapitalsRepository gameCapitalsRepo) =>
     return await gameCapitalsRepo.GetCapitalsGame();
 })
 .WithName("GameCapitals")
-.WithDescription("Get a capitals quiz game with randomized questions")
+.WithDescription("Generates a randomized capitals quiz game")
 .Produces<List<GeoQuizQuestion>>(StatusCodes.Status200OK);
 
 app.Run();
