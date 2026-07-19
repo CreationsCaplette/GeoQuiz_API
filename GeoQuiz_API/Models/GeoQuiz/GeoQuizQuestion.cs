@@ -3,5 +3,5 @@
 public record GeoQuizQuestion(
     string Question,
     List<string>  Choices,
-    int AnswerIndex
+    string Answer
 );
