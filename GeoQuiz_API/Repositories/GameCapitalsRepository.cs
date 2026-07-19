@@ -29,7 +29,7 @@ public class GameCapitalsRepository(
             questions.Add(new GeoQuizQuestion(
                 correctCountry.CountryName,
                 choices,
-                choices.IndexOf(correctCountry.CapitalName)
+                correctCountry.CapitalName
             ));
         }
 
