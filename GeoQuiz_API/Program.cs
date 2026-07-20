@@ -20,4 +20,12 @@ app.MapGet("/game/capitals", async (IGameCapitalsRepository gameCapitalsRepo) =>
 .WithDescription("Generates a randomized capitals quiz game")
 .Produces<List<GeoQuizQuestion>>(StatusCodes.Status200OK);
 
+app.MapGet("/game/capitals_reverse", async (IGameCapitalsReverseRepository gameCapitalsReverseRepo) =>
+{
+    return await gameCapitalsReverseRepo.GetCapitalsReverseGame();
+})
+.WithName("GameCapitalsReverse")
+.WithDescription("Generates a randomized capitals reverse quiz game")
+.Produces<List<GeoQuizQuestion>>(StatusCodes.Status200OK);
+
 app.Run();

@@ -44,6 +44,7 @@ public static class AppConfig
         );
         builder.Services.AddScoped<IGeoQuizRepository, GeoQuizRepository>();
         builder.Services.AddScoped<IGameCapitalsRepository, GameCapitalsRepository>();
+        builder.Services.AddScoped<IGameCapitalsReverseRepository, GameCapitalsReverseRepository>();
 
         var app = builder.Build();
 
