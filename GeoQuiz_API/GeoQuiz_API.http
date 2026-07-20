@@ -4,4 +4,6 @@ GET {{GeoQuiz_API_HostAddress}}/countries/all/
 
 GET {{GeoQuiz_API_HostAddress}}/game/capitals/
 
+GET {{GeoQuiz_API_HostAddress}}/game/capitals_reverse/
+
 ###
