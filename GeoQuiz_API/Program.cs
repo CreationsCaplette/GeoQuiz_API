@@ -28,4 +28,12 @@ app.MapGet("/game/capitals_reverse", async (IGameCapitalsReverseRepository gameC
 .WithDescription("Generates a randomized capitals reverse quiz game")
 .Produces<List<GeoQuizQuestion>>(StatusCodes.Status200OK);
 
+app.MapGet("/game/flags", async (IGameFlagsRepository gameFlagsRepo) =>
+{
+    return await gameFlagsRepo.GetFlagsGame();
+})
+.WithName("GameFlags")
+.WithDescription("Generates a randomized flags quiz game")
+.Produces<List<GeoQuizQuestion>>(StatusCodes.Status200OK);
+
 app.Run();

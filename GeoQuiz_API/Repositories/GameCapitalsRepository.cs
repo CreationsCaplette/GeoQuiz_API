@@ -8,7 +8,7 @@ public class GameCapitalsRepository(
     IOptions<GeoQuizGameOptions> options,
     IGeoQuizRepository geoQuizRepository,
     IRandomProvider randomProvider
-) : BaseGameCapitalsRepository(options, geoQuizRepository, randomProvider), IGameCapitalsRepository
+) : BaseGameRepository(options, geoQuizRepository, randomProvider), IGameCapitalsRepository
 {
     public Task<List<GeoQuizQuestion>> GetCapitalsGame() =>
         GetGameQuestions(
