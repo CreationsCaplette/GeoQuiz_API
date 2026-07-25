@@ -6,4 +6,6 @@ GET {{GeoQuiz_API_HostAddress}}/game/capitals/
 
 GET {{GeoQuiz_API_HostAddress}}/game/capitals_reverse/
 
+GET {{GeoQuiz_API_HostAddress}}/game/flags/
+
 ###

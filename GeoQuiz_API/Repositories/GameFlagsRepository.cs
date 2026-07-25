@@ -4,15 +4,15 @@ using Microsoft.Extensions.Options;
 
 namespace GeoQuiz_API.Repositories;
 
-public class GameCapitalsReverseRepository(
+public class GameFlagsRepository(
     IOptions<GeoQuizGameOptions> options,
     IGeoQuizRepository geoQuizRepository,
     IRandomProvider randomProvider
-) : BaseGameRepository(options, geoQuizRepository, randomProvider), IGameCapitalsReverseRepository
+) : BaseGameRepository(options, geoQuizRepository, randomProvider), IGameFlagsRepository
 {
-    public Task<List<GeoQuizQuestion>> GetCapitalsReverseGame() =>
+    public Task<List<GeoQuizQuestion>> GetFlagsGame() =>
         GetGameQuestions(
-            country => country.CapitalName,
+            country => country.FlagUrl,
             country => country.CountryName
         );
 }

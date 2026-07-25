@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace GeoQuiz_API.Repositories;
 
-public abstract class BaseGameCapitalsRepository(
+public abstract class BaseGameRepository(
     IOptions<GeoQuizGameOptions> options,
     IGeoQuizRepository geoQuizRepository,
     IRandomProvider randomProvider
